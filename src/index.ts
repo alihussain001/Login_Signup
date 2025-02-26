@@ -1,4 +1,5 @@
 import  Express from "express";
+import { mongoConnect } from "./config/db";
 
 const app = Express();
 app.use(Express.json());
@@ -6,9 +7,13 @@ app.use(Express.json());
 const PORT = 3000;
 
 app.get("/", (req, res) => {
-    res.send("Hello, server is started at 3000")
+    res.json({
+        version: "1.0",
+    });
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+mongoConnect().then(() => {
+    app.listen(3000, () => {
+        console.log("Server started at port 3000");
+    });
 });

@@ -4,12 +4,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const db_1 = require("./config/db");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 const PORT = 3000;
 app.get("/", (req, res) => {
-    res.send("Hello, server is started at 3000");
+    res.json({
+        version: "1.0",
+    });
 });
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+(0, db_1.mongoConnect)().then(() => {
+    app.listen(3000, () => {
+        console.log("Server started at port 3000");
+    });
 });
