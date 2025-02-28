@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
 
-const uri = "mongodb+srv://TrainersTome:alihussain9981@oriondb.1lnjo.mongodb.net/lotgin_singup?retryWrites=true&w=majority&appName=OrionDB";
+dotenv.config();
+const MONGO_URI = process.env.MONGO_URI || "";
 
 async function connect(){
     try{
-        await mongoose.connect(uri);
+        await mongoose.connect(MONGO_URI);
     }catch (e){
         throw e;
     }

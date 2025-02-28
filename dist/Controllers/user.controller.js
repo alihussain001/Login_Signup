@@ -12,9 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup = void 0;
+exports.login = exports.signup = void 0;
 const Users_model_1 = require("../Models/Users.model");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, password } = req.body;
@@ -33,7 +36,7 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // saving on database
         const newUser = new Users_model_1.User({
             username,
-            password,
+            password: hashedPassword,
         });
         yield newUser.save();
         res.status(200).json({ message: "User created Successfully", newUser });
@@ -45,3 +48,33 @@ const signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.signup = signup;
+const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            res.status(400).json({ message: "Please Input Username and Password" });
+            return;
+        }
+        const user = yield Users_model_1.User.findOne({ username });
+        console.log("USer found in DB", user);
+        if (!user) {
+            res.status(401).json({ message: "Invalid Username or Password" });
+            return;
+        }
+        const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
+        console.log("Entered Password", password);
+        console.log("Stored Hashed Password", user.password);
+        console.log("Password matched", passwordMatch);
+        if (!passwordMatch) {
+            res.status(401).json({ message: "Invalid Username or Password " });
+            return;
+        }
+        const token = jsonwebtoken_1.default.sign({ user_id: user._id, username: user.username }, process.env.SECRET_KEY || "", { expiresIn: "1h" });
+        res.status(200).json({ message: "Login Successfully", data: user, token });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Error during Login" });
+        return;
+    }
+});
+exports.login = login;

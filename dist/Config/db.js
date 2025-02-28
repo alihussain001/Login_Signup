@@ -14,11 +14,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mongoConnect = connect;
 const mongoose_1 = __importDefault(require("mongoose"));
-const uri = "mongodb+srv://TrainersTome:alihussain9981@oriondb.1lnjo.mongodb.net/lotgin_singup?retryWrites=true&w=majority&appName=OrionDB";
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const MONGO_URI = process.env.MONGO_URI || "";
 function connect() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield mongoose_1.default.connect(uri);
+            yield mongoose_1.default.connect(MONGO_URI);
         }
         catch (e) {
             throw e;
