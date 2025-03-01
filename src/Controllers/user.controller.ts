@@ -50,6 +50,7 @@ export const login = async (req: Request, res: Response) =>{
             return;
         }
         
+        // CHECKING VALID USER
         const user = await User.findOne({username});
         console.log("USer found in DB", user);
 
@@ -58,16 +59,15 @@ export const login = async (req: Request, res: Response) =>{
             return;
         }
 
+        // COMPARING VALID PASSWORDS:   
         const passwordMatch = await bcrypt.compare(password, user.password);
-        console.log("Entered Password", password);
-        console.log("Stored Hashed Password", user.password);
-        console.log("Password matched", passwordMatch);
 
         if(!passwordMatch){
             res.status(401).json({ message: "Invalid Username or Password "});
             return;
         }
 
+        // GENERATING JWT TOKEN 
         const token = jwt.sign(
             {user_id: user._id, username: user.username},
             process.env.SECRET_KEY || "",
@@ -80,3 +80,14 @@ export const login = async (req: Request, res: Response) =>{
         return;
     }
 };
+
+export const getAllUsers = async (req: Request, res: Response) =>{
+    try{
+        const users = await User.find({}, {password: 0});
+        res.status(200).json({ data: users});
+        return;
+    }catch(error){
+       res.status(500).json({message: "Error Fetching Users"});
+       return;
+    }
+}
